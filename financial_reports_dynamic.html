@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Financial Reports — Accounting Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#1976D2;--primary-light:#E3F2FD;--primary-dark:#1565C0;
+  --success:#2E7D32;--success-bg:#E8F5E9;
+  --danger:#C62828;--danger-bg:#FFEBEE;
+  --warn:#E65100;--warn-bg:#FFF3E0;
+  --purple:#6A1B9A;--teal:#00695C;
+  --gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#EEEEEE;
+  --gray-300:#E0E0E0;--gray-400:#BDBDBD;--gray-600:#757575;
+  --gray-800:#424242;--gray-900:#212121;
+  --border:#E0E0E0;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:'Inter',sans-serif;background:#F0F4F8;color:var(--gray-900);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* NAV */
+.top-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;color:var(--primary)}
+.logo .material-icons{font-size:22px}
+.breadcrumb{font-size:12px;color:var(--gray-600);display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:var(--primary);text-decoration:none}
+.breadcrumb span{color:var(--gray-400)}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+
+/* TOAST */
+#toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius);background:#fff;box-shadow:var(--shadow-md);border-left:4px solid var(--primary);font-size:13px;min-width:280px;animation:slideIn .25s ease;color:var(--gray-900)}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.warn{border-left-color:var(--warn)}
+.toast .material-icons{font-size:18px}
+.toast.success .material-icons{color:var(--success)}
+.toast.error .material-icons{color:var(--danger)}
+.toast.warn .material-icons{color:var(--warn)}
+@keyframes slideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+
+/* PAGE */
+.page{padding:24px;max-width:1440px;margin:0 auto}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.page-header h1{font-size:22px;font-weight:700}
+.page-header p{color:var(--gray-600);font-size:13px;margin-top:2px}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s ease;font-family:inherit;white-space:nowrap}
+.btn .material-icons{font-size:16px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:var(--shadow-md)}
+.btn-outline{background:#fff;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-outline:hover{background:var(--primary-light)}
+.btn-ghost{background:transparent;color:var(--gray-600)}
+.btn-ghost:hover{background:var(--gray-100)}
+.btn-danger{background:transparent;color:var(--danger);border:1.5px solid var(--danger)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* FILTER CARD */
+.filter-card{background:#fff;border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.filter-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.filter-card-header h3{font-size:13px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.filter-grid{display:grid;grid-template-columns:220px 150px 150px 150px 170px auto;gap:14px;align-items:end;flex-wrap:wrap}
+@media(max-width:1100px){.filter-grid{grid-template-columns:1fr 1fr 1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px}
+.field select,.field input{border:1.5px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--gray-900);transition:border-color .15s;outline:none}
+.field select:focus,.field input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(25,118,210,.12)}
+
+/* DATE PRESETS */
+.date-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.preset-chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--gray-600);transition:all .15s;font-family:inherit}
+.preset-chip:hover,.preset-chip.active{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+
+/* KPI ROW */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:#fff;border-radius:var(--radius-lg);padding:16px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--border);border-left:4px solid var(--primary);position:relative;overflow:hidden;transition:box-shadow .2s}
+.kpi-card:hover{box-shadow:var(--shadow-md)}
+.kpi-card.green{border-left-color:var(--success)}
+.kpi-card.red{border-left-color:var(--danger)}
+.kpi-card.orange{border-left-color:var(--warn)}
+.kpi-card.purple{border-left-color:var(--purple)}
+.kpi-card label{font-size:11px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px}
+.kpi-card .value{font-size:22px;font-weight:700;margin-top:6px;color:var(--gray-900);transition:all .3s}
+.kpi-card .value.green{color:var(--success)}
+.kpi-card .value.red{color:var(--danger)}
+.kpi-card .sub{font-size:11px;color:var(--gray-600);margin-top:4px}
+.kpi-card .kpi-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:40px;color:var(--gray-200)}
+.kpi-delta{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;margin-top:4px}
+.kpi-delta.up{background:var(--success-bg);color:var(--success)}
+.kpi-delta.down{background:var(--danger-bg);color:var(--danger)}
+
+/* MAIN CARD */
+.main-card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden}
+
+/* TABS */
+.tab-bar{display:flex;align-items:center;border-bottom:2px solid var(--border);padding:0 20px;background:#fff;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tab-list{display:flex;gap:0}
+.tab{padding:14px 18px;font-size:13px;font-weight:500;color:var(--gray-600);cursor:pointer;border:none;background:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;display:flex;align-items:center;gap:7px;font-family:inherit;transition:all .15s;white-space:nowrap}
+.tab .material-icons{font-size:17px}
+.tab:hover{color:var(--primary);background:var(--primary-light)}
+.tab.active{color:var(--primary);font-weight:600;border-bottom-color:var(--primary)}
+.tab-actions{display:flex;gap:8px;align-items:center;padding:8px 0;flex-wrap:wrap}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--gray-100);flex-wrap:wrap;gap:10px;background:var(--gray-50)}
+.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius);padding:6px 10px;gap:6px;background:#fff;transition:border-color .15s}
+.search-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(25,118,210,.1)}
+.search-box .material-icons{font-size:17px;color:var(--gray-400)}
+.search-box input{border:none;background:none;outline:none;font-family:inherit;font-size:13px;width:200px;color:var(--gray-900)}
+.filter-chip{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--gray-600);transition:all .15s;font-family:inherit}
+.filter-chip:hover,.filter-chip.active{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* TABLES */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.table-wrapper{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--gray-50);padding:10px 16px;font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;border-bottom:1.5px solid var(--border);text-align:left;white-space:nowrap;user-select:none}
+thead th.num{text-align:right}
+thead th.sortable{cursor:pointer}
+thead th.sortable:hover{background:var(--gray-200);color:var(--primary)}
+thead th .sort-icon{font-size:14px;vertical-align:middle;color:var(--gray-400);margin-left:2px}
+thead th.sort-asc .sort-icon,thead th.sort-desc .sort-icon{color:var(--primary)}
+tbody tr{border-bottom:1px solid var(--gray-100);transition:background .1s}
+tbody tr:hover:not(.section-header):not(.subtotal):not(.grand-total):not(.net-profit):not(.net-loss){background:#F8FBFF}
+tbody tr.section-header{background:var(--gray-50)}
+tbody tr.section-header td{font-weight:700;color:var(--gray-800);font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:9px 16px;border-top:1.5px solid var(--border)}
+tbody tr.subtotal td{font-weight:600;color:var(--gray-800);background:#F0F7FF;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+tbody tr.grand-total td{font-weight:700;color:var(--gray-900);font-size:13px;background:#E3F2FD;border-top:2px solid var(--primary)}
+tbody tr.net-profit td{font-weight:700;font-size:14px;color:var(--success);background:var(--success-bg);border-top:2px solid var(--success)}
+tbody tr.net-loss td{font-weight:700;font-size:14px;color:var(--danger);background:var(--danger-bg);border-top:2px solid var(--danger)}
+td{padding:10px 16px;vertical-align:middle}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+td.credit-val{color:var(--success);font-weight:500}
+td.debit-val{color:var(--danger);font-weight:500}
+td.indent-1{padding-left:36px}
+td.indent-2{padding-left:56px}
+.toggle-btn{background:none;border:none;cursor:pointer;color:var(--gray-600);padding:0 4px 0 0;font-size:16px;vertical-align:middle;font-family:'Material Icons';display:inline-block;transition:transform .2s;outline:none}
+.toggle-btn.open{transform:rotate(90deg)}
+.collapsible{display:none}
+.collapsible.open{display:table-row}
+mark.hl{background:#FFF59D;border-radius:2px;padding:0 1px}
+
+/* SPLIT (BS) */
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.split-col{border-right:1px solid var(--border)}
+.split-col:last-child{border-right:none}
+.split-col-header{padding:12px 16px;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+.split-col-header .material-icons{font-size:18px}
+@media(max-width:768px){.split-grid{grid-template-columns:1fr}.split-col{border-right:none;border-bottom:1px solid var(--border)}}
+
+/* NOTE BOX */
+.note-box{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;margin:0 0 0 0;font-size:12px;border-bottom:1px solid var(--border)}
+.note-box .material-icons{font-size:16px;flex-shrink:0;margin-top:1px}
+.note-box.info{background:var(--primary-light);color:var(--primary)}
+.note-box.success{background:var(--success-bg);color:var(--success)}
+.note-box.warn{background:var(--warn-bg);color:var(--warn)}
+
+/* PAGINATION */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border);background:var(--gray-50);flex-wrap:wrap;gap:8px}
+.pagination .info{font-size:12px;color:var(--gray-600)}
+.pager{display:flex;gap:4px;align-items:center}
+.page-btn{min-width:30px;height:30px;padding:0 6px;border-radius:var(--radius);border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;transition:all .15s;font-family:inherit}
+.page-btn:hover:not(:disabled){background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.page-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.page-btn:disabled{opacity:.4;cursor:not-allowed}
+.rows-select{border:1px solid var(--border);border-radius:var(--radius);padding:4px 8px;font-size:12px;font-family:inherit;outline:none}
+
+/* BALANCE CHIP */
+.balance-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.balance-chip.ok{background:var(--success-bg);color:var(--success)}
+.balance-chip.err{background:var(--danger-bg);color:var(--danger)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-asset{background:#E3F2FD;color:var(--primary)}
+.badge-liability{background:var(--warn-bg);color:var(--warn)}
+.badge-equity{background:#EDE7F6;color:var(--purple)}
+.badge-revenue{background:var(--success-bg);color:var(--success)}
+.badge-expense{background:var(--danger-bg);color:var(--danger)}
+.badge-posted{background:var(--success-bg);color:var(--success)}
+.badge-draft{background:var(--warn-bg);color:var(--warn)}
+
+/* SKELETON */
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.skeleton{background:linear-gradient(90deg,var(--gray-200) 25%,var(--gray-100) 50%,var(--gray-200) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;height:16px}
+.skeleton-row td div{height:14px;border-radius:3px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);width:92%;max-width:540px;box-shadow:var(--shadow-lg);overflow:hidden;animation:modalIn .2s ease}
+@keyframes modalIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-weight:600;font-size:15px}
+.modal-body{padding:20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.close-btn{background:none;border:none;cursor:pointer;color:var(--gray-600);font-family:'Material Icons';font-size:20px}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{height:3px;background:var(--gray-200);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-bar{height:100%;background:var(--primary);border-radius:2px;transition:width .4s ease}
+
+/* COMPARE DIFF */
+td.diff-up{color:var(--success);font-size:11px;font-weight:600}
+td.diff-down{color:var(--danger);font-size:11px;font-weight:600}
+
+/* PRINT */
+@media print{
+  .top-nav,.filter-card,.header-actions,.toolbar,.pagination,.tab-bar{display:none!important}
+  .main-card{box-shadow:none;border:none}
+  .tab-panel{display:block!important}
+  body{background:#fff}
+}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-wrap"></div>
+
+<!-- NAV -->
+<nav class="top-nav">
+  <div class="logo"><span class="material-icons">account_balance</span>Accounting Module</div>
+  <div class="breadcrumb">
+    <a href="#">Dashboard</a><span>›</span>
+    <a href="#">Accounting</a><span>›</span>
+    <strong>Financial Reports</strong>
+  </div>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="openModal('shortcutsModal')"><span class="material-icons" style="font-size:20px">keyboard</span></button>
+    <button class="btn btn-ghost"><span class="material-icons" style="font-size:20px">notifications_none</span></button>
+    <div class="avatar" title="Abhinav Sahu">AS</div>
+  </div>
+</nav>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h1>📊 Financial Reports</h1>
+      <p id="reportSubtitle">Balance Sheet · Profit & Loss · Trial Balance</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" onclick="window.print()"><span class="material-icons">print</span>Print</button>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()"><span class="material-icons">table_view</span>Export CSV</button>
+      <button class="btn btn-outline btn-sm" onclick="copyToClipboard()"><span class="material-icons">content_copy</span>Copy</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('exportModal')"><span class="material-icons">download</span>Export Report</button>
+    </div>
+  </div>
+
+  <!-- FILTER CARD -->
+  <div class="filter-card">
+    <div class="filter-card-header">
+      <h3><span class="material-icons" style="font-size:15px">tune</span>Report Filters</h3>
+      <button class="btn btn-ghost btn-sm" onclick="resetFilters()"><span class="material-icons">restart_alt</span>Reset</button>
+    </div>
+    <div class="filter-grid">
+      <div class="field">
+        <label>Organization</label>
+        <select id="orgSelect" onchange="onOrgChange()">
+          <option value="754">Org 754 — WH Mumbai Central</option>
+          <option value="1452">Org 1452 — WH Surat</option>
+          <option value="1502">Org 1502 — WH Pune</option>
+          <option value="1552">Org 1552 — WH Delhi NCR</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fiscal Year</label>
+        <select id="fySelect" onchange="setFY(this.value)">
+          <option value="2026">FY 2025–26</option>
+          <option value="2025">FY 2024–25</option>
+          <option value="2024">FY 2023–24</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>From Date</label>
+        <input type="date" id="fromDate" value="2026-01-01" onchange="clearPreset()"/>
+      </div>
+      <div class="field">
+        <label>To Date</label>
+        <input type="date" id="toDate" value="2026-12-31" onchange="clearPreset()"/>
+      </div>
+      <div class="field">
+        <label>Voucher Status</label>
+        <select id="statusFilter">
+          <option value="all">All (Draft + Posted)</option>
+          <option value="posted">Posted Only</option>
+          <option value="draft">Draft Only</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="generateReport()" id="genBtn" style="height:37px;margin-top:4px">
+        <span class="material-icons">play_arrow</span>Generate
+      </button>
+    </div>
+    <div class="date-presets" id="datePresets">
+      <span style="font-size:11px;font-weight:600;color:var(--gray-600);margin-right:4px">Quick:</span>
+      <button class="preset-chip" onclick="setPreset('thisMonth',this)">This Month</button>
+      <button class="preset-chip" onclick="setPreset('lastMonth',this)">Last Month</button>
+      <button class="preset-chip" onclick="setPreset('q1',this)">Q1</button>
+      <button class="preset-chip" onclick="setPreset('q2',this)">Q2</button>
+      <button class="preset-chip" onclick="setPreset('q3',this)">Q3</button>
+      <button class="preset-chip" onclick="setPreset('q4',this)">Q4</button>
+      <button class="preset-chip active" onclick="setPreset('ytd',this)">YTD</button>
+      <button class="preset-chip" onclick="setPreset('fullYear',this)">Full Year</button>
+    </div>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card green">
+      <span class="material-icons kpi-icon">trending_up</span>
+      <label>Total Assets</label>
+      <div class="value" id="kpiAssets">₹0</div>
+      <div class="kpi-delta up" id="kpiAssetsDelta"><span class="material-icons" style="font-size:12px">arrow_upward</span>+12.4%</div>
+      <div class="sub">vs prior period</div>
+    </div>
+    <div class="kpi-card red">
+      <span class="material-icons kpi-icon">account_balance</span>
+      <label>Total Liabilities</label>
+      <div class="value" id="kpiLiab">₹0</div>
+      <div class="kpi-delta down" id="kpiLiabDelta"><span class="material-icons" style="font-size:12px">arrow_downward</span>-3.1%</div>
+      <div class="sub">vs prior period</div>
+    </div>
+    <div class="kpi-card" id="kpiProfitCard">
+      <span class="material-icons kpi-icon">monetization_on</span>
+      <label>Net Profit / (Loss)</label>
+      <div class="value" id="kpiProfit">₹0</div>
+      <div class="kpi-delta up" id="kpiProfitDelta"><span class="material-icons" style="font-size:12px">arrow_upward</span>+8.2%</div>
+      <div class="sub">vs prior period</div>
+    </div>
+    <div class="kpi-card purple">
+      <span class="material-icons kpi-icon">rule</span>
+      <label>Trial Balance</label>
+      <div class="value" id="kpiTBStatus" style="font-size:15px;margin-top:8px">
+        <span class="balance-chip err"><span class="material-icons" style="font-size:13px">warning</span>Unbalanced</span>
+      </div>
+      <div class="sub" id="kpiTBSub">Switch to Posted for clean TB</div>
+    </div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="main-card">
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+      <div class="tab-list">
+        <button class="tab active" id="tab-bs" onclick="switchTab('bs')">
+          <span class="material-icons">account_balance_wallet</span>Balance Sheet
+        </button>
+        <button class="tab" id="tab-pl" onclick="switchTab('pl')">
+          <span class="material-icons">trending_up</span>Profit & Loss
+        </button>
+        <button class="tab" id="tab-tb" onclick="switchTab('tb')">
+          <span class="material-icons">format_list_numbered</span>Trial Balance
+        </button>
+      </div>
+      <div class="tab-actions">
+        <div class="search-box">
+          <span class="material-icons">search</span>
+          <input type="text" id="searchInput" placeholder="Search accounts…" oninput="handleSearch()"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BALANCE SHEET ── -->
+    <div class="tab-panel active" id="panel-bs">
+      <div id="bsNote" class="note-box info">
+        <span class="material-icons">info</span>
+        <span id="bsNoteText">Select filters and click Generate to load the Balance Sheet.</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;padding:8px 16px;gap:8px;border-bottom:1px solid var(--gray-100)">
+        <button class="btn btn-ghost btn-sm" onclick="expandAll('bs')"><span class="material-icons">unfold_more</span>Expand All</button>
+        <button class="btn btn-ghost btn-sm" onclick="collapseAll('bs')"><span class="material-icons">unfold_less</span>Collapse All</button>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="bsShowZero" onchange="renderBS()" style="cursor:pointer"/>
+          Show zero balances
+        </label>
+      </div>
+      <div class="split-grid">
+        <div class="split-col">
+          <div class="split-col-header" style="background:var(--primary)">
+            <span><span class="material-icons">arrow_upward</span> Assets</span>
+            <span id="bsAssetTotal" style="font-size:15px">₹0.00</span>
+          </div>
+          <table><thead><tr><th>Account</th><th class="num">Amount (₹)</th></tr></thead><tbody id="bsAssetsTbody"></tbody></table>
+        </div>
+        <div class="split-col">
+          <div class="split-col-header" style="background:var(--gray-800)">
+            <span><span class="material-icons">arrow_downward</span> Liabilities &amp; Equity</span>
+            <span id="bsLiabTotal" style="font-size:15px">₹0.00</span>
+          </div>
+          <table><thead><tr><th>Account</th><th class="num">Amount (₹)</th></tr></thead><tbody id="bsLiabTbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── P&L ── -->
+    <div class="tab-panel" id="panel-pl">
+      <div id="plNote" class="note-box info">
+        <span class="material-icons">info</span>
+        <span id="plNoteText">Select filters and click Generate to load the P&L Statement.</span>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="btn btn-ghost btn-sm" onclick="expandAll('pl')"><span class="material-icons">unfold_more</span>Expand All</button>
+          <button class="btn btn-ghost btn-sm" onclick="collapseAll('pl')"><span class="material-icons">unfold_less</span>Collapse All</button>
+        </div>
+        <div class="toolbar-right">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="plShowPct" onchange="renderPL()" style="cursor:pointer" checked/>
+            Show % of Revenue
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="plShowPrev" onchange="renderPL()" style="cursor:pointer"/>
+            Show Prior Period
+          </label>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="plTable">
+          <thead id="plThead"></thead>
+          <tbody id="plTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TRIAL BALANCE ── -->
+    <div class="tab-panel" id="panel-tb">
+      <div id="tbNote" class="note-box warn">
+        <span class="material-icons">warning_amber</span>
+        <span id="tbNoteText">Select filters and click Generate to load the Trial Balance.</span>
+      </div>
+      <div class="toolbar">
+        <div class="toolbar-left" id="tbTypeFilters">
+          <span style="font-size:11px;font-weight:600;color:var(--gray-600)">Filter:</span>
+          <button class="filter-chip active" data-type="all"   onclick="tbFilter('all',this)">All</button>
+          <button class="filter-chip" data-type="Asset"        onclick="tbFilter('Asset',this)">Assets</button>
+          <button class="filter-chip" data-type="Liability"    onclick="tbFilter('Liability',this)">Liabilities</button>
+          <button class="filter-chip" data-type="Equity"       onclick="tbFilter('Equity',this)">Equity</button>
+          <button class="filter-chip" data-type="Revenue"      onclick="tbFilter('Revenue',this)">Revenue</button>
+          <button class="filter-chip" data-type="Expense"      onclick="tbFilter('Expense',this)">Expense</button>
+        </div>
+        <div class="toolbar-right">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="tbHideZero" onchange="applyTBFilter()" style="cursor:pointer"/>
+            Hide zero rows
+          </label>
+          <select class="rows-select" id="tbRowsPerPage" onchange="tbGoPage(1)">
+            <option value="10">10 rows</option>
+            <option value="25" selected>25 rows</option>
+            <option value="50">50 rows</option>
+            <option value="100">All</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="tbTable">
+          <thead>
+            <tr>
+              <th class="sortable" onclick="sortTB('code')">Code <span class="material-icons sort-icon">unfold_more</span></th>
+              <th class="sortable" onclick="sortTB('name')">Account Name <span class="material-icons sort-icon">unfold_more</span></th>
+              <th>Type</th>
+              <th class="num sortable" onclick="sortTB('debit')">Debit (₹) <span class="material-icons sort-icon">unfold_more</span></th>
+              <th class="num sortable" onclick="sortTB('credit')">Credit (₹) <span class="material-icons sort-icon">unfold_more</span></th>
+              <th class="num sortable" onclick="sortTB('net')">Net Balance <span class="material-icons sort-icon">unfold_more</span></th>
+            </tr>
+          </thead>
+          <tbody id="tbTbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="info" id="tbInfo">—</div>
+        <div class="pager" id="tbPager"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-card -->
+</div><!-- /page -->
+
+<!-- ── EXPORT MODAL ── -->
+<div class="modal-overlay" id="exportModal" onclick="closeModalOutside(event,'exportModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Export Financial Report</span>
+      <button class="close-btn" onclick="closeModal('exportModal')">close</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div class="field"><label>Format</label>
+        <select id="exportFmt">
+          <option value="csv">CSV (Comma Separated)</option>
+          <option value="json">JSON</option>
+          <option value="print">Print / PDF</option>
+        </select>
+      </div>
+      <div class="field"><label>Report Section</label>
+        <select id="exportSection">
+          <option value="tb">Trial Balance</option>
+          <option value="bs">Balance Sheet</option>
+          <option value="pl">Profit & Loss</option>
+        </select>
+      </div>
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;font-size:12px;color:var(--gray-600)">
+        <strong>Period:</strong> <span id="exportPeriodLabel">—</span><br/>
+        <strong>Org:</strong> <span id="exportOrgLabel">—</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('exportModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="doExport()"><span class="material-icons">download</span>Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHORTCUTS MODAL ── -->
+<div class="modal-overlay" id="shortcutsModal" onclick="closeModalOutside(event,'shortcutsModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Keyboard Shortcuts</span>
+      <button class="close-btn" onclick="closeModal('shortcutsModal')">close</button>
+    </div>
+    <div class="modal-body">
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">G</kbd></td><td style="padding:8px">Generate Report</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">1</kbd></td><td style="padding:8px">Switch to Balance Sheet</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">2</kbd></td><td style="padding:8px">Switch to Profit & Loss</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">3</kbd></td><td style="padding:8px">Switch to Trial Balance</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">Ctrl + F</kbd></td><td style="padding:8px">Focus Search</td></tr>
+        <tr><td style="padding:8px"><kbd style="background:var(--gray-100);padding:2px 7px;border-radius:4px;font-size:12px;border:1px solid var(--border)">Esc</kbd></td><td style="padding:8px">Clear Search / Close Modal</td></tr>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('shortcutsModal')">Got it</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// MULTI-ORG MOCK DATA
+// ════════════════════════════════════════════
+const ORG_DATA = {
+  "754": {
+    name:"WH Mumbai Central", currency:"INR",
+    bs:{
+      assets:[
+        { groupName:"Current Assets", total:52980.10, accounts:[
+          {code:"1210",name:"Cash & Bank",          balance:1300.00},
+          {code:"1220",name:"Accounts Receivable",  balance:50780.10},
+          {code:"1230",name:"Inventory",            balance:900.00},
+          {code:"1240",name:"Advance to Suppliers", balance:0.00},
+        ]},
+        { groupName:"Non-Current Assets", total:200.00, accounts:[
+          {code:"1110",name:"Fixed Assets",         balance:200.00},
+          {code:"1111",name:"Furniture & Fixture",  balance:0.00},
+          {code:"1116",name:"Land",                 balance:0.00},
+        ]},
+      ],
+      totalAssets:53180.10,
+      liabilities:[
+        { groupName:"Current Liabilities", total:1800.00, accounts:[
+          {code:"2100",name:"Accounts Payable",          balance:200.00},
+          {code:"2200",name:"GST Payable",               balance:1100.00},
+          {code:"2300",name:"TDS Payable",               balance:100.00},
+          {code:"2400",name:"Short Term Loans",          balance:300.00},
+          {code:"2500",name:"Other Current Liabilities", balance:100.00},
+        ]},
+      ],
+      totalLiabilities:1800.00,
+      equity:[
+        { groupName:"Equity", total:51380.10, accounts:[
+          {code:"3100",name:"Owner's Equity",    balance:51380.10},
+          {code:"3200",name:"Retained Earnings", balance:0.00},
+        ]},
+      ],
+      totalEquity:51380.10,
+    },
+    pl:{
+      revenue:   {label:"Revenue",          items:[{code:"4100",name:"Sales Revenue",amount:20000},{code:"4200",name:"Other Income",amount:500}],  total:20500,  prev:18200},
+      cogs:      {label:"Cost of Goods Sold",items:[{code:"5100",name:"COGS",         amount:6000}],                                                total:6000,   prev:5400},
+      opex:      {label:"Operating Expenses",items:[{code:"5300",name:"TDS on Purchase",amount:249.90},{code:"5400",name:"Salaries & Wages",amount:300},{code:"5500",name:"GST Input",amount:1030}], total:1579.90, prev:1700},
+      otherExp:  {label:"Other Expenses",   items:[{code:"5600",name:"Bank Charges",  amount:0}],                                                   total:0,      prev:50},
+      netProfit: 12920.10, prevNetProfit: 11050,
+    },
+    tb:[
+      {code:"1210",name:"Cash & Bank",            type:"Asset",    debit:1500.00,  credit:200.00},
+      {code:"1220",name:"Accounts Receivable",    type:"Asset",    debit:50780.10, credit:0},
+      {code:"1230",name:"Inventory",              type:"Asset",    debit:900.00,   credit:0},
+      {code:"1240",name:"Advance to Suppliers",   type:"Asset",    debit:0,        credit:0},
+      {code:"1110",name:"Fixed Assets",           type:"Asset",    debit:200.00,   credit:0},
+      {code:"2100",name:"Accounts Payable",       type:"Liability",debit:0,        credit:200.00},
+      {code:"2200",name:"GST Payable",            type:"Liability",debit:0,        credit:1100.00},
+      {code:"2300",name:"TDS Payable",            type:"Liability",debit:100.00,   credit:0},
+      {code:"2400",name:"Short Term Loans",       type:"Liability",debit:0,        credit:300.00},
+      {code:"2500",name:"Other Current Liab.",    type:"Liability",debit:0,        credit:100.00},
+      {code:"3100",name:"Owner's Equity",         type:"Equity",   debit:0,        credit:51380.10},
+      {code:"4100",name:"Sales Revenue",          type:"Revenue",  debit:0,        credit:20000.00},
+      {code:"4200",name:"Other Income",           type:"Revenue",  debit:0,        credit:500.00},
+      {code:"5100",name:"Cost of Goods Sold",     type:"Expense",  debit:6000.00,  credit:0},
+      {code:"5300",name:"TDS on Purchases",       type:"Expense",  debit:249.90,   credit:0},
+      {code:"5400",name:"Salaries & Wages",       type:"Expense",  debit:300.00,   credit:0},
+      {code:"5500",name:"GST Input Credit",       type:"Expense",  debit:1030.00,  credit:0},
+    ],
+  },
+  "1452": {
+    name:"WH Surat", currency:"INR",
+    bs:{
+      assets:[
+        { groupName:"Current Assets", total:42500, accounts:[
+          {code:"1210",name:"Cash & Bank",        balance:12000},
+          {code:"1220",name:"Accounts Receivable",balance:25000},
+          {code:"1230",name:"Inventory",          balance:5500},
+        ]},
+        { groupName:"Non-Current Assets", total:8000, accounts:[
+          {code:"1110",name:"Fixed Assets",       balance:8000},
+        ]},
+      ],
+      totalAssets:50500,
+      liabilities:[
+        {groupName:"Current Liabilities", total:5200, accounts:[
+          {code:"2100",name:"Accounts Payable",  balance:3000},
+          {code:"2200",name:"GST Payable",        balance:1200},
+          {code:"2400",name:"Short Term Loans",   balance:1000},
+        ]},
+      ],
+      totalLiabilities:5200,
+      equity:[{groupName:"Equity", total:45300, accounts:[{code:"3100",name:"Owner's Equity",balance:45300},{code:"3200",name:"Retained Earnings",balance:0}]}],
+      totalEquity:45300,
+    },
+    pl:{
+      revenue:  {label:"Revenue",          items:[{code:"4100",name:"Sales Revenue",amount:55000},{code:"4200",name:"Other Income",amount:200}], total:55200, prev:48000},
+      cogs:     {label:"Cost of Goods Sold",items:[{code:"5100",name:"COGS",         amount:22000}],                                              total:22000, prev:20000},
+      opex:     {label:"Operating Expenses",items:[{code:"5400",name:"Salaries & Wages",amount:8000},{code:"5300",name:"TDS",amount:550}],         total:8550,  prev:8200},
+      otherExp: {label:"Other Expenses",   items:[{code:"5600",name:"Bank Charges",  amount:200}],                                                total:200,   prev:150},
+      netProfit:24450, prevNetProfit:19650,
+    },
+    tb:[
+      {code:"1210",name:"Cash & Bank",         type:"Asset",    debit:12000, credit:0},
+      {code:"1220",name:"Accounts Receivable", type:"Asset",    debit:25000, credit:0},
+      {code:"1230",name:"Inventory",           type:"Asset",    debit:5500,  credit:0},
+      {code:"1110",name:"Fixed Assets",        type:"Asset",    debit:8000,  credit:0},
+      {code:"2100",name:"Accounts Payable",    type:"Liability",debit:0,     credit:3000},
+      {code:"2200",name:"GST Payable",         type:"Liability",debit:0,     credit:1200},
+      {code:"2400",name:"Short Term Loans",    type:"Liability",debit:0,     credit:1000},
+      {code:"3100",name:"Owner's Equity",      type:"Equity",   debit:0,     credit:45300},
+      {code:"4100",name:"Sales Revenue",       type:"Revenue",  debit:0,     credit:55000},
+      {code:"4200",name:"Other Income",        type:"Revenue",  debit:0,     credit:200},
+      {code:"5100",name:"COGS",                type:"Expense",  debit:22000, credit:0},
+      {code:"5400",name:"Salaries & Wages",    type:"Expense",  debit:8000,  credit:0},
+      {code:"5300",name:"TDS",                 type:"Expense",  debit:550,   credit:0},
+      {code:"5600",name:"Bank Charges",        type:"Expense",  debit:200,   credit:0},
+    ],
+  },
+  "1502":{
+    name:"WH Pune", currency:"INR",
+    bs:{
+      assets:[{groupName:"Current Assets",total:31000,accounts:[{code:"1210",name:"Cash & Bank",balance:8000},{code:"1220",name:"Accounts Receivable",balance:18000},{code:"1230",name:"Inventory",balance:5000}]},{groupName:"Non-Current Assets",total:12000,accounts:[{code:"1110",name:"Fixed Assets",balance:12000}]}],
+      totalAssets:43000,
+      liabilities:[{groupName:"Current Liabilities",total:7500,accounts:[{code:"2100",name:"Accounts Payable",balance:4000},{code:"2200",name:"GST Payable",balance:2000},{code:"2400",name:"Loans",balance:1500}]}],
+      totalLiabilities:7500,
+      equity:[{groupName:"Equity",total:35500,accounts:[{code:"3100",name:"Owner's Equity",balance:35500}]}],
+      totalEquity:35500,
+    },
+    pl:{revenue:{label:"Revenue",items:[{code:"4100",name:"Sales Revenue",amount:38000}],total:38000,prev:34000},cogs:{label:"Cost of Goods Sold",items:[{code:"5100",name:"COGS",amount:15000}],total:15000,prev:13500},opex:{label:"Operating Expenses",items:[{code:"5400",name:"Salaries",amount:6000},{code:"5300",name:"TDS",amount:380}],total:6380,prev:6000},otherExp:{label:"Other Expenses",items:[{code:"5600",name:"Misc",amount:100}],total:100,prev:80},netProfit:16520,prevNetProfit:14420},
+    tb:[{code:"1210",name:"Cash & Bank",type:"Asset",debit:8000,credit:0},{code:"1220",name:"AR",type:"Asset",debit:18000,credit:0},{code:"1230",name:"Inventory",type:"Asset",debit:5000,credit:0},{code:"1110",name:"Fixed Assets",type:"Asset",debit:12000,credit:0},{code:"2100",name:"AP",type:"Liability",debit:0,credit:4000},{code:"2200",name:"GST Payable",type:"Liability",debit:0,credit:2000},{code:"2400",name:"Loans",type:"Liability",debit:0,credit:1500},{code:"3100",name:"Equity",type:"Equity",debit:0,credit:35500},{code:"4100",name:"Sales Revenue",type:"Revenue",debit:0,credit:38000},{code:"5100",name:"COGS",type:"Expense",debit:15000,credit:0},{code:"5400",name:"Salaries",type:"Expense",debit:6000,credit:0},{code:"5300",name:"TDS",type:"Expense",debit:380,credit:0}],
+  },
+  "1552":{
+    name:"WH Delhi NCR", currency:"INR",
+    bs:{
+      assets:[{groupName:"Current Assets",total:78000,accounts:[{code:"1210",name:"Cash & Bank",balance:15000},{code:"1220",name:"Accounts Receivable",balance:55000},{code:"1230",name:"Inventory",balance:8000}]},{groupName:"Non-Current Assets",total:25000,accounts:[{code:"1110",name:"Fixed Assets",balance:25000}]}],
+      totalAssets:103000,
+      liabilities:[{groupName:"Current Liabilities",total:18000,accounts:[{code:"2100",name:"Accounts Payable",balance:10000},{code:"2200",name:"GST Payable",balance:5000},{code:"2400",name:"Loans",balance:3000}]}],
+      totalLiabilities:18000,
+      equity:[{groupName:"Equity",total:85000,accounts:[{code:"3100",name:"Owner's Equity",balance:85000}]}],
+      totalEquity:85000,
+    },
+    pl:{revenue:{label:"Revenue",items:[{code:"4100",name:"Sales Revenue",amount:95000},{code:"4200",name:"Other Income",amount:2000}],total:97000,prev:88000},cogs:{label:"Cost of Goods Sold",items:[{code:"5100",name:"COGS",amount:40000}],total:40000,prev:37000},opex:{label:"Operating Expenses",items:[{code:"5400",name:"Salaries",amount:15000},{code:"5300",name:"TDS",amount:950},{code:"5500",name:"Rent",amount:8000}],total:23950,prev:22000},otherExp:{label:"Other Expenses",items:[{code:"5600",name:"Bank Charges",amount:500}],total:500,prev:400},netProfit:32550,prevNetProfit:28600},
+    tb:[{code:"1210",name:"Cash & Bank",type:"Asset",debit:15000,credit:0},{code:"1220",name:"AR",type:"Asset",debit:55000,credit:0},{code:"1230",name:"Inventory",type:"Asset",debit:8000,credit:0},{code:"1110",name:"Fixed Assets",type:"Asset",debit:25000,credit:0},{code:"2100",name:"AP",type:"Liability",debit:0,credit:10000},{code:"2200",name:"GST Payable",type:"Liability",debit:0,credit:5000},{code:"2400",name:"Loans",type:"Liability",debit:0,credit:3000},{code:"3100",name:"Equity",type:"Equity",debit:0,credit:85000},{code:"4100",name:"Sales Revenue",type:"Revenue",debit:0,credit:95000},{code:"4200",name:"Other Income",type:"Revenue",debit:0,credit:2000},{code:"5100",name:"COGS",type:"Expense",debit:40000,credit:0},{code:"5400",name:"Salaries",type:"Expense",debit:15000,credit:0},{code:"5300",name:"TDS",type:"Expense",debit:950,credit:0},{code:"5500",name:"Rent",type:"Expense",debit:8000,credit:0},{code:"5600",name:"Bank Charges",type:"Expense",debit:500,credit:0}],
+  },
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let activeTab = 'bs';
+let tbSortCol = null, tbSortDir = 1;
+let tbCurrentType = 'all';
+let tbPage = 1;
+let tbFilteredData = [];
+let generatedOnce = false;
+let searchQuery = '';
+
+function currentOrg(){ return ORG_DATA[document.getElementById('orgSelect').value]; }
+const fmt = n => n === 0 ? '—' : new Intl.NumberFormat('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Math.abs(n));
+const fmtSigned = n => (n < 0 ? '-₹' : '₹') + fmt(n);
+function hl(str){ if(!searchQuery) return str; const re = new RegExp('('+searchQuery.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'); return str.replace(re,'<mark class="hl">$1</mark>'); }
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function toast(msg, type='info', icon='info'){
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="material-icons">${icon}</span>${msg}`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.animation='fadeOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 2800);
+}
+
+// ════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='exportModal'){
+    const org = currentOrg();
+    document.getElementById('exportOrgLabel').textContent = org.name;
+    document.getElementById('exportPeriodLabel').textContent =
+      document.getElementById('fromDate').value + ' → ' + document.getElementById('toDate').value;
+  }
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e,id){ if(e.target.id===id) closeModal(id); }
+
+// ════════════════════════════════════════════
+// DATE PRESETS
+// ════════════════════════════════════════════
+function setPreset(key, el){
+  document.querySelectorAll('.preset-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const now = new Date(); const y = now.getFullYear(); const m = now.getMonth();
+  const pad = n => String(n).padStart(2,'0');
+  const d = (y,m,day) => `${y}-${pad(m+1)}-${pad(day)}`;
+  const lastDay = (y,m) => new Date(y,m+1,0).getDate();
+  const map = {
+    thisMonth: [d(y,m,1), d(y,m,lastDay(y,m))],
+    lastMonth: [d(m===0?y-1:y,m===0?11:m-1,1), d(m===0?y-1:y,m===0?11:m-1,lastDay(m===0?y-1:y,m===0?11:m-1))],
+    q1: [d(y,0,1), d(y,2,31)], q2:[d(y,3,1),d(y,5,30)], q3:[d(y,6,1),d(y,8,30)], q4:[d(y,9,1),d(y,11,31)],
+    ytd: [d(y,0,1), `${y}-${pad(m+1)}-${pad(now.getDate())}`],
+    fullYear: [d(y,0,1), d(y,11,31)],
+  };
+  const [from,to] = map[key]||[d(y,0,1),d(y,11,31)];
+  document.getElementById('fromDate').value = from;
+  document.getElementById('toDate').value = to;
+}
+function clearPreset(){ document.querySelectorAll('.preset-chip').forEach(c=>c.classList.remove('active')); }
+function setFY(fy){ document.getElementById('fromDate').value=`${fy-1}-04-01`; document.getElementById('toDate').value=`${fy}-03-31`; clearPreset(); }
+function resetFilters(){ document.getElementById('orgSelect').value='754'; document.getElementById('fySelect').value='2026'; setFY(2026); document.getElementById('statusFilter').value='all'; toast('Filters reset','info','restart_alt'); }
+function onOrgChange(){ if(generatedOnce) generateReport(); }
+
+// ════════════════════════════════════════════
+// GENERATE
+// ════════════════════════════════════════════
+function generateReport(){
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML='<span class="material-icons" style="animation:spin 1s linear infinite;display:inline-block">sync</span>&nbsp;Generating…';
+  setTimeout(()=>{
+    const org = currentOrg();
+    renderKPIs(org);
+    renderBS(org);
+    renderPL(org);
+    initTB(org);
+    updateSubtitle();
+    generatedOnce = true;
+    btn.disabled = false;
+    btn.innerHTML='<span class="material-icons">check</span>Generated';
+    toast(`Report generated for ${org.name}`,'success','check_circle');
+    setTimeout(()=>{ btn.innerHTML='<span class="material-icons">play_arrow</span>Generate'; },2500);
+  }, 800);
+}
+
+function updateSubtitle(){
+  const from = document.getElementById('fromDate').value;
+  const to   = document.getElementById('toDate').value;
+  const org  = document.getElementById('orgSelect').options[document.getElementById('orgSelect').selectedIndex].text;
+  document.getElementById('reportSubtitle').textContent = `${org} · ${from} to ${to}`;
+}
+
+// ════════════════════════════════════════════
+// KPIs (animated counter)
+// ════════════════════════════════════════════
+function animateCount(el, target, prefix='₹'){
+  const dur=700, steps=40, inc=target/steps;
+  let cur=0, i=0;
+  const timer = setInterval(()=>{
+    cur = Math.min(cur+inc, target); i++;
+    el.textContent = prefix + new Intl.NumberFormat('en-IN',{minimumFractionDigits:0,maximumFractionDigits:0}).format(Math.round(cur));
+    if(i>=steps){ el.textContent=prefix+new Intl.NumberFormat('en-IN',{minimumFractionDigits:0}).format(target); clearInterval(timer); }
+  }, dur/steps);
+}
+
+function renderKPIs(org){
+  animateCount(document.getElementById('kpiAssets'),   org.bs.totalAssets);
+  animateCount(document.getElementById('kpiLiab'),     org.bs.totalLiabilities);
+  const profitEl = document.getElementById('kpiProfit');
+  const isProfit = org.pl.netProfit >= 0;
+  animateCount(profitEl, Math.abs(org.pl.netProfit));
+  profitEl.className = 'value ' + (isProfit?'green':'red');
+  document.getElementById('kpiProfitCard').className = 'kpi-card ' + (isProfit?'green':'red');
+  // TB balance check
+  const tbItems = org.tb;
+  const totD = tbItems.reduce((s,r)=>s+r.debit,0);
+  const totC = tbItems.reduce((s,r)=>s+r.credit,0);
+  const balanced = Math.abs(totD-totC)<0.01;
+  document.getElementById('kpiTBStatus').innerHTML = balanced
+    ? `<span class="balance-chip ok"><span class="material-icons" style="font-size:13px">check_circle</span>Balanced</span>`
+    : `<span class="balance-chip err"><span class="material-icons" style="font-size:13px">warning</span>Δ ₹${fmt(Math.abs(totD-totC))}</span>`;
+  document.getElementById('kpiTBSub').textContent = balanced ? 'Total DR = Total CR ✓' : 'Filter to Posted only for clean TB';
+}
+
+// ════════════════════════════════════════════
+// BALANCE SHEET
+// ════════════════════════════════════════════
+function renderBS(){
+  const org = generatedOnce ? currentOrg() : null;
+  if(!org) return;
+  const showZero = document.getElementById('bsShowZero').checked;
+  const atb = document.getElementById('bsAssetsTbody');
+  const ltb = document.getElementById('bsLiabTbody');
+  atb.innerHTML=''; ltb.innerHTML='';
+  document.getElementById('bsAssetTotal').textContent='₹'+fmt(org.bs.totalAssets);
+  document.getElementById('bsLiabTotal').textContent='₹'+fmt(org.bs.totalLiabilities+org.bs.totalEquity);
+
+  const renderGroup=(tbody,grp,prefix,idx)=>{
+    const sid=prefix+'_'+idx;
+    tbody.innerHTML+=`<tr class="section-header"><td colspan="2"><button class="toggle-btn open" id="btn_${sid}" onclick="toggleGroup('${sid}')">arrow_right</button>${hl(grp.groupName)}</td></tr>`;
+    grp.accounts.forEach((acc,ai)=>{
+      if(!showZero && acc.balance===0) return;
+      tbody.innerHTML+=`<tr class="collapsible open" data-group="${sid}"><td class="indent-1"><code style="font-size:11px;color:var(--gray-400);margin-right:6px">${acc.code}</code>${hl(acc.name)}</td><td class="num">${fmtSigned(acc.balance)}</td></tr>`;
+    });
+    tbody.innerHTML+=`<tr class="subtotal"><td class="indent-1"><strong>Total ${grp.groupName}</strong></td><td class="num"><strong>₹${fmt(grp.total)}</strong></td></tr>`;
+  };
+  org.bs.assets.forEach((g,i)=>renderGroup(atb,g,'as',i));
+  atb.innerHTML+=`<tr class="grand-total"><td><strong>TOTAL ASSETS</strong></td><td class="num"><strong>₹${fmt(org.bs.totalAssets)}</strong></td></tr>`;
+  org.bs.liabilities.forEach((g,i)=>renderGroup(ltb,g,'li',i));
+  ltb.innerHTML+=`<tr class="subtotal"><td><strong>Total Liabilities</strong></td><td class="num"><strong>₹${fmt(org.bs.totalLiabilities)}</strong></td></tr>`;
+  org.bs.equity.forEach((g,i)=>renderGroup(ltb,g,'eq',i));
+  ltb.innerHTML+=`<tr class="subtotal"><td><strong>Total Equity</strong></td><td class="num"><strong>₹${fmt(org.bs.totalEquity)}</strong></td></tr>`;
+  const match = Math.abs(org.bs.totalAssets-(org.bs.totalLiabilities+org.bs.totalEquity))<0.01;
+  ltb.innerHTML+=`<tr class="grand-total"><td><strong>TOTAL LIABILITIES &amp; EQUITY</strong> &nbsp;<span class="balance-chip ${match?'ok':'err'}" style="font-size:11px"><span class="material-icons" style="font-size:12px">${match?'check_circle':'warning'}</span>${match?'Balanced':'Unbalanced'}</span></td><td class="num"><strong>₹${fmt(org.bs.totalLiabilities+org.bs.totalEquity)}</strong></td></tr>`;
+
+  const bsNote = document.getElementById('bsNote');
+  const bsNoteText = document.getElementById('bsNoteText');
+  if(match){
+    bsNote.className='note-box success';
+    bsNoteText.innerHTML=`Balance Sheet is <strong>balanced</strong>. Total Assets ₹${fmt(org.bs.totalAssets)} = Liabilities ₹${fmt(org.bs.totalLiabilities)} + Equity ₹${fmt(org.bs.totalEquity)} ✓`;
+  } else {
+    bsNote.className='note-box warn';
+    bsNoteText.innerHTML='Balance Sheet is <strong>unbalanced</strong>. Check for missing journal entries.';
+  }
+}
+
+// ════════════════════════════════════════════
+// P&L
+// ════════════════════════════════════════════
+function renderPL(){
+  const org = generatedOnce ? currentOrg() : null;
+  if(!org) return;
+  const showPct  = document.getElementById('plShowPct').checked;
+  const showPrev = document.getElementById('plShowPrev').checked;
+  const pl = org.pl;
+  const totalRev = pl.revenue.total;
+
+  // Build thead
+  let thExtra='';
+  if(showPrev) thExtra+=`<th class="num">Prior Period (₹)</th><th class="num">Change</th>`;
+  if(showPct)  thExtra+=`<th class="num">% of Revenue</th>`;
+  document.getElementById('plThead').innerHTML=`<tr><th>Particulars</th><th class="num">Amount (₹)</th><th class="num">Total (₹)</th>${thExtra}</tr>`;
+
+  const tb = document.getElementById('plTbody');
+  tb.innerHTML='';
+  const sections = [
+    {type:'section', data:pl.revenue,  isExpense:false},
+    {type:'section', data:pl.cogs,     isExpense:true},
+    {type:'subtotal',label:'Gross Profit', value:pl.revenue.total-pl.cogs.total, prevValue:(pl.revenue.prev||0)-(pl.cogs.prev||0)},
+    {type:'section', data:pl.opex,     isExpense:true},
+    {type:'section', data:pl.otherExp, isExpense:true},
+    {type:'net',     label:'Net Profit / (Loss)', value:pl.netProfit, prevValue:pl.prevNetProfit},
+  ];
+  sections.forEach((sec,si)=>{
+    if(sec.type==='section'){
+      const sid='pl_'+si;
+      tb.innerHTML+=`<tr class="section-header"><td colspan="${2+(showPrev?2:0)+(showPct?1:0)+1}"><button class="toggle-btn open" id="btn_${sid}" onclick="toggleGroup('${sid}')">arrow_right</button>${sec.data.label}</td></tr>`;
+      sec.data.items.forEach(item=>{
+        const pctStr = showPct && totalRev>0 ? `<td class="num" style="color:var(--gray-600);font-size:12px">${((item.amount/totalRev)*100).toFixed(1)}%</td>`:'';
+        const prevStr= showPrev ? `<td class="num" style="color:var(--gray-600)">₹${fmt(item.amount*0.92)}</td><td class="num"></td>`:'' ;
+        tb.innerHTML+=`<tr class="collapsible open" data-group="${sid}"><td class="indent-1"><code style="font-size:11px;color:var(--gray-400);margin-right:6px">${item.code}</code>${hl(item.name)}</td><td class="num">₹${fmt(item.amount)}</td><td></td>${prevStr}${pctStr}</tr>`;
+      });
+      const pctTot = showPct && totalRev>0 ? `<td class="num" style="font-weight:600">${((sec.data.total/totalRev)*100).toFixed(1)}%</td>`:'';
+      const prevTot= showPrev ? `<td class="num"><strong>₹${fmt(sec.data.prev||0)}</strong></td><td class="num">${diffBadge(sec.data.total,sec.data.prev||0)}</td>`:'' ;
+      tb.innerHTML+=`<tr class="subtotal"><td class="indent-1">Total ${sec.data.label}</td><td></td><td class="num">₹${fmt(sec.data.total)}</td>${prevTot}${pctTot}</tr>`;
+    } else if(sec.type==='subtotal'){
+      const pctStr = showPct ? `<td class="num" style="font-weight:600">${totalRev>0?((sec.value/totalRev)*100).toFixed(1)+'%':'—'}</td>`:'';
+      const prevStr= showPrev ? `<td class="num"><strong>₹${fmt(sec.prevValue)}</strong></td><td class="num">${diffBadge(sec.value,sec.prevValue)}</td>`:'' ;
+      tb.innerHTML+=`<tr class="subtotal"><td><strong>${sec.label}</strong></td><td></td><td class="num"><strong>₹${fmt(sec.value)}</strong></td>${prevStr}${pctStr}</tr>`;
+    } else {
+      const cls = sec.value>=0 ? 'net-profit' : 'net-loss';
+      const pctStr = showPct ? `<td class="num">${totalRev>0?((sec.value/totalRev)*100).toFixed(1)+'%':'—'}</td>`:'';
+      const prevStr= showPrev ? `<td class="num">₹${fmt(sec.prevValue)}</td><td class="num">${diffBadge(sec.value,sec.prevValue)}</td>`:'' ;
+      tb.innerHTML+=`<tr class="${cls}"><td><strong>${sec.label}</strong></td><td></td><td class="num">₹${fmt(sec.value)}</td>${prevStr}${pctStr}</tr>`;
+    }
+  });
+  const isProfit = pl.netProfit>=0;
+  const plNote=document.getElementById('plNote'); const plNoteText=document.getElementById('plNoteText');
+  plNote.className = isProfit?'note-box success':'note-box warn';
+  plNoteText.innerHTML=`${isProfit?'Net <strong>Profit</strong>':'Net <strong>Loss</strong>'} of <strong>₹${fmt(Math.abs(pl.netProfit))}</strong>. Revenue: ₹${fmt(pl.revenue.total)} | Total Expenses: ₹${fmt(pl.cogs.total+pl.opex.total+pl.otherExp.total)} | Gross Margin: ${totalRev>0?(((pl.revenue.total-pl.cogs.total)/totalRev)*100).toFixed(1):'0.0'}%`;
+}
+
+function diffBadge(cur,prev){
+  if(!prev) return '<td>—</td>';
+  const d=cur-prev; const pct=((d/prev)*100).toFixed(1);
+  const cls=d>=0?'diff-up':'diff-down';
+  return `<span class="${cls}">${d>=0?'▲':'▼'} ${Math.abs(pct)}%</span>`;
+}
+
+// ════════════════════════════════════════════
+// TRIAL BALANCE
+// ════════════════════════════════════════════
+function initTB(org){
+  tbFilteredData = [...org.tb];
+  tbCurrentType='all'; tbSortCol=null; tbSortDir=1; tbPage=1;
+  document.querySelectorAll('#tbTypeFilters .filter-chip').forEach(c=>{
+    c.classList.toggle('active', c.dataset.type==='all');
+  });
+  renderTB();
+}
+
+function tbFilter(type, el){
+  document.querySelectorAll('#tbTypeFilters .filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  tbCurrentType=type; tbPage=1;
+  applyTBFilter();
+}
+
+function applyTBFilter(){
+  if(!generatedOnce) return;
+  const org = currentOrg();
+  const hideZero = document.getElementById('tbHideZero').checked;
+  const q = searchQuery.toLowerCase();
+  tbFilteredData = org.tb.filter(r=>{
+    if(tbCurrentType!=='all' && r.type!==tbCurrentType) return false;
+    if(hideZero && r.debit===0 && r.credit===0) return false;
+    if(q && !r.name.toLowerCase().includes(q) && !r.code.toLowerCase().includes(q) && !r.type.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if(tbSortCol) applySortTB();
+  renderTB();
+}
+
+function sortTB(col){
+  if(tbSortCol===col){ tbSortDir*=-1; } else { tbSortCol=col; tbSortDir=1; }
+  document.querySelectorAll('#tbTable thead th').forEach(th=>{ th.classList.remove('sort-asc','sort-desc'); });
+  const thMap={code:0,name:1,debit:3,credit:4,net:5};
+  const idx=thMap[col];
+  const th=document.querySelectorAll('#tbTable thead th')[idx];
+  if(th){ th.classList.add(tbSortDir===1?'sort-asc':'sort-desc'); th.querySelector('.sort-icon').textContent=tbSortDir===1?'arrow_upward':'arrow_downward'; }
+  applySortTB(); renderTB();
+}
+function applySortTB(){
+  tbFilteredData.sort((a,b)=>{
+    let va,vb;
+    if(tbSortCol==='code'){va=a.code;vb=b.code;}
+    else if(tbSortCol==='name'){va=a.name;vb=b.name;}
+    else if(tbSortCol==='debit'){va=a.debit;vb=b.debit;}
+    else if(tbSortCol==='credit'){va=a.credit;vb=b.credit;}
+    else if(tbSortCol==='net'){va=a.debit-a.credit;vb=b.debit-b.credit;}
+    if(typeof va==='string') return va.localeCompare(vb)*tbSortDir;
+    return (va-vb)*tbSortDir;
+  });
+}
+
+function renderTB(){
+  const rowsPerPage = parseInt(document.getElementById('tbRowsPerPage').value)||25;
+  const total = tbFilteredData.length;
+  const totalPages = rowsPerPage>=100 ? 1 : Math.ceil(total/rowsPerPage);
+  if(tbPage>totalPages) tbPage=1;
+  const start=(tbPage-1)*rowsPerPage, end=Math.min(start+rowsPerPage,total);
+  const pageData = rowsPerPage>=100 ? tbFilteredData : tbFilteredData.slice(start,end);
+
+  const tb=document.getElementById('tbTbody'); tb.innerHTML='';
+  const typeClass={Asset:'badge-asset',Liability:'badge-liability',Equity:'badge-equity',Revenue:'badge-revenue',Expense:'badge-expense'};
+  pageData.forEach(row=>{
+    const net=row.debit-row.credit;
+    const netStr=net===0?'—': net>0?`<span style="color:var(--danger);font-weight:600">DR ₹${fmt(net)}</span>`:`<span style="color:var(--success);font-weight:600">CR ₹${fmt(Math.abs(net))}</span>`;
+    tb.innerHTML+=`<tr>
+      <td><code style="font-size:12px;color:var(--gray-600);background:var(--gray-100);padding:1px 5px;border-radius:3px">${hl(row.code)}</code></td>
+      <td>${hl(row.name)}</td>
+      <td><span class="badge ${typeClass[row.type]||''}">${row.type}</span></td>
+      <td class="num debit-val">${row.debit>0?'₹'+fmt(row.debit):'—'}</td>
+      <td class="num credit-val">${row.credit>0?'₹'+fmt(row.credit):'—'}</td>
+      <td class="num">${netStr}</td>
+    </tr>`;
+  });
+  const totD=tbFilteredData.reduce((s,r)=>s+r.debit,0);
+  const totC=tbFilteredData.reduce((s,r)=>s+r.credit,0);
+  const diff=totD-totC; const balanced=Math.abs(diff)<0.01;
+  tb.innerHTML+=`<tr class="grand-total">
+    <td colspan="3">TOTAL &nbsp;<span class="balance-chip ${balanced?'ok':'err'}"><span class="material-icons" style="font-size:13px">${balanced?'check_circle':'warning'}</span>${balanced?'Balanced':'Δ ₹'+fmt(Math.abs(diff))}</span></td>
+    <td class="num debit-val">₹${fmt(totD)}</td>
+    <td class="num credit-val">₹${fmt(totC)}</td>
+    <td class="num">${balanced?'<span style="color:var(--success)">✓ Matched</span>':'<span style="color:var(--danger)">Δ ₹'+fmt(Math.abs(diff))+'</span>'}</td>
+  </tr>`;
+
+  document.getElementById('tbInfo').textContent = `Showing ${start+1}–${end} of ${total} accounts`;
+  // Pager
+  const pager=document.getElementById('tbPager'); pager.innerHTML='';
+  const addBtn=(label,page,active,disabled)=>{
+    const b=document.createElement('button');
+    b.className='page-btn'+(active?' active':'');
+    b.disabled=disabled; b.textContent=label;
+    b.onclick=()=>tbGoPage(page);
+    pager.appendChild(b);
+  };
+  addBtn('‹',tbPage-1,false,tbPage<=1);
+  for(let p=1;p<=totalPages;p++){
+    if(totalPages<=7||p===1||p===totalPages||Math.abs(p-tbPage)<=1){
+      addBtn(p,p,p===tbPage,false);
+    } else if(Math.abs(p-tbPage)===2){
+      const sp=document.createElement('span'); sp.textContent='…'; sp.style.padding='0 4px'; pager.appendChild(sp);
+    }
+  }
+  addBtn('›',tbPage+1,false,tbPage>=totalPages);
+
+  const tbNoteText=document.getElementById('tbNoteText');
+  const tbNote=document.getElementById('tbNote');
+  if(balanced){
+    tbNote.className='note-box success';
+    tbNoteText.innerHTML=`Trial Balance is <strong>balanced</strong>. Total Debit ₹${fmt(totD)} = Total Credit ₹${fmt(totC)} ✓`;
+  } else {
+    tbNote.className='note-box warn';
+    tbNoteText.innerHTML=`Trial Balance has a difference of <strong>₹${fmt(Math.abs(diff))}</strong>. Switch to <em>Posted Only</em> status filter for accurate data.`;
+  }
+}
+
+function tbGoPage(p){ tbPage=p; renderTB(); }
+
+// ════════════════════════════════════════════
+// SEARCH
+// ════════════════════════════════════════════
+function handleSearch(){
+  searchQuery = document.getElementById('searchInput').value.trim();
+  if(activeTab==='tb'){ applyTBFilter(); return; }
+  if(!generatedOnce) return;
+  // For BS and PL, re-render with highlight
+  if(activeTab==='bs') renderBS();
+  if(activeTab==='pl') renderPL();
+}
+
+// ════════════════════════════════════════════
+// EXPAND / COLLAPSE
+// ════════════════════════════════════════════
+function expandAll(tab){
+  const panel=document.getElementById('panel-'+tab);
+  panel.querySelectorAll('.collapsible').forEach(r=>r.classList.add('open'));
+  panel.querySelectorAll('.toggle-btn').forEach(b=>b.classList.add('open'));
+}
+function collapseAll(tab){
+  const panel=document.getElementById('panel-'+tab);
+  panel.querySelectorAll('.collapsible').forEach(r=>r.classList.remove('open'));
+  panel.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('open'));
+}
+function toggleGroup(gid){
+  const rows=document.querySelectorAll(`[data-group="${gid}"]`);
+  const btn=document.getElementById('btn_'+gid);
+  const open=btn.classList.contains('open');
+  rows.forEach(r=>r.classList.toggle('open',!open));
+  btn.classList.toggle('open',!open);
+}
+
+// ════════════════════════════════════════════
+// TAB SWITCH
+// ════════════════════════════════════════════
+function switchTab(id){
+  activeTab=id;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  document.getElementById('searchInput').value=''; searchQuery='';
+}
+
+// ════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════
+function exportCSV(){
+  if(!generatedOnce){ toast('Please generate a report first','warn','warning'); return; }
+  const org=currentOrg();
+  const rows=[['Code','Account Name','Type','Debit (INR)','Credit (INR)','Net Balance']];
+  org.tb.forEach(r=>rows.push([r.code,r.name,r.type,r.debit,r.credit,r.debit-r.credit]));
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`trial_balance_${org.name.replace(/\s/g,'_')}.csv`; a.click();
+  toast('CSV downloaded','success','download');
+}
+
+function doExport(){
+  const fmt2=document.getElementById('exportFmt').value;
+  const sec=document.getElementById('exportSection').value;
+  closeModal('exportModal');
+  if(fmt2==='print'){ window.print(); return; }
+  if(!generatedOnce){ toast('Please generate a report first','warn','warning'); return; }
+  if(fmt2==='csv'){ exportCSV(); return; }
+  const org=currentOrg();
+  const data={section:sec,org:org.name,period:{from:document.getElementById('fromDate').value,to:document.getElementById('toDate').value},data:sec==='tb'?org.tb:sec==='bs'?org.bs:org.pl};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`financial_report_${sec}.json`; a.click();
+  toast('JSON exported','success','download');
+}
+
+function copyToClipboard(){
+  if(!generatedOnce){ toast('Please generate a report first','warn','warning'); return; }
+  const org=currentOrg();
+  const lines=['Trial Balance — '+org.name,'Code\tAccount\tType\tDebit\tCredit'];
+  org.tb.forEach(r=>lines.push(`${r.code}\t${r.name}\t${r.type}\t${r.debit}\t${r.credit}`));
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('Copied to clipboard','success','content_copy'));
+}
+
+// ════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT') return;
+  if(e.key==='g'||e.key==='G') generateReport();
+  if(e.key==='1') switchTab('bs');
+  if(e.key==='2') switchTab('pl');
+  if(e.key==='3') switchTab('tb');
+  if(e.key==='Escape'){ document.getElementById('searchInput').value=''; searchQuery=''; handleSearch(); document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open')); }
+  if((e.ctrlKey||e.metaKey)&&e.key==='f'){ e.preventDefault(); document.getElementById('searchInput').focus(); }
+});
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+generateReport();
+</script>
+</body>
+</html>
